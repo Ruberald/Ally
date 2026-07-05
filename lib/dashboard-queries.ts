@@ -479,29 +479,21 @@ export async function getFriendsStats(profile: Profile) {
 }
 
 export async function getFriendRequests(profile: Profile) {
-  const getCachedData = unstable_cache(
-    async (profileId: string) => {
-      const pendingRequests = await db.friendship.findMany({
-        where: {
-          user2Id: profileId,
-          status: "PENDING"
-        },
-        include: {
-          user1: { select: { name: true, email: true } }
-        }
-      });
-
-      return pendingRequests.map(req => ({
-        id: req.id,
-        senderName: req.user1.name,
-        senderEmail: req.user1.email
-      }));
+  const pendingRequests = await db.friendship.findMany({
+    where: {
+      user2Id: profile.id,
+      status: "PENDING"
     },
-    ["friend-requests", profile.id],
-    { revalidate: 3600, tags: [`dashboard:${profile.id}`] }
-  );
+    include: {
+      user1: { select: { name: true, email: true } }
+    }
+  });
 
-  return getCachedData(profile.id);
+  return pendingRequests.map(req => ({
+    id: req.id,
+    senderName: req.user1.name,
+    senderEmail: req.user1.email
+  }));
 }
 
 export async function getTodos(profile: Profile) {

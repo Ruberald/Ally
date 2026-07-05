@@ -2,6 +2,7 @@ import { currentProfile } from "@/lib/current-profile";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 import { getFriendRequests } from "@/lib/dashboard-queries";
+import { revalidateTag } from "next/cache";
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +38,7 @@ export async function PUT(req: Request) {
 
     const friendship = await db.friendship.findUnique({
       where: { id },
-      select: { id: true, user2Id: true },
+      select: { id: true, user2Id: true, user1Id: true },
     });
 
     if (!friendship || friendship.user2Id !== profile.id) {
@@ -49,6 +50,8 @@ export async function PUT(req: Request) {
         where: { id },
         data: { status: "ACCEPTED" }
       });
+      revalidateTag(`dashboard:${profile.id}`);
+      revalidateTag(`dashboard:${friendship.user1Id}`);
       return NextResponse.json(updated);
     } else {
       await db.friendship.delete({

@@ -49,8 +49,8 @@ const FriendsStats = () => {
       if (!res.ok) throw new Error('Failed to fetch requests');
       return res.json();
     },
-    refetchInterval: 15 * 60 * 1000,
-    staleTime: 5 * 60 * 1000,
+    refetchInterval: 30 * 1000,
+    staleTime: 0,
   });
 
   const loading = isLoadingFriends || isLoadingRequests;
@@ -91,9 +91,7 @@ const FriendsStats = () => {
       
       if (res.ok) {
         queryClient.invalidateQueries({ queryKey: ['friendRequests'] });
-        if (accept) {
-          queryClient.invalidateQueries({ queryKey: ['friends'] });
-        }
+        queryClient.invalidateQueries({ queryKey: ['friends'] });
       }
     } catch (error) {
       console.error('Failed to respond to friend request:', error);

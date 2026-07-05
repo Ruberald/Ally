@@ -29,6 +29,9 @@ export async function POST(req: Request) {
           mode: 'insensitive'
         }
       },
+      orderBy: {
+        updatedAt: 'desc'
+      },
       select: { id: true },
     });
 
